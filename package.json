@@ -1,0 +1,15 @@
+{
+  "name": "vulcan",
+  "version": "0.0.2",
+  "description": "A resolution-based propositional logic tool",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "propositional",
+    "logic"
+  ],
+  "author": "Ryan Marcus <ryan@rmarcus.info>",
+  "license": "GPLv3"
+}
