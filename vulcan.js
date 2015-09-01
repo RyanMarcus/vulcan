@@ -22,10 +22,10 @@ var lexer = require("./lex.js");
 
 
 function buildTree(string) {
-	return parser.parse(lexer.lex(string));
+	return hoistNullActions(parser.parse(lexer.lex(string)));
 }
 
-function buildConjection(a, b) {
+function buildConjunction(a, b) {
 	return { action: "conjunction",
 		 args: [a, b] };
 }
@@ -52,7 +52,7 @@ function eliminateBijection(tree) {
 
 	if (tree.action == "equivalence") {
 		// apply the transformation
-		return buildConjection(
+		return buildConjunction(
 			buildImplication(
 				eliminateBijection(tree.args[0]),
 				eliminateBijection(tree.args[1])
@@ -67,6 +67,32 @@ function eliminateBijection(tree) {
 
 	return { action: tree.action,
 		 args: tree.args.map(eliminateBijection) };
+}
+
+function deMorgans(tree) {
+	if (!tree || tree.action == "substitution")
+		return tree;
+	
+	if (tree.action == "negation") {
+		if (tree.args[0].action == "disjunction") {
+			// move the negation in
+			return buildConjunction(
+				buildNegation(deMorgans(tree.args[0])),
+				buildNegation(deMorgans(tree.args[1]))
+			);
+		}
+
+		if (tree.args[0].action == "conjunction") {
+			// move negation in
+			return buildDisjunction(
+				buildNegation(deMorgans(tree.args[0])),
+				buildNegation(deMorgans(tree.args[0]))
+			);
+		}
+	}
+
+	return { action: tree.action,
+		 args: tree.args.map(deMorgans) };
 }
 
 function eliminateImplication(tree) {
@@ -85,6 +111,89 @@ function eliminateImplication(tree) {
  
 }
 
+function eliminateDoubleNegation(tree) {
+	console.log("Got: " + JSON.stringify(tree));
+	if (!tree || tree.action == "substitution")
+		return tree;
 
-console.log(JSON.stringify(eliminateBijection(buildTree("A <-> B & C"))));
-console.log(JSON.stringify(eliminateImplication(eliminateBijection(buildTree("A <-> B & C")))));
+	if (tree.action == "negation") {
+		if (tree.args[0].action == "negation") {
+			return eliminateDoubleNegation(tree.args[0].args[0]);
+		}
+	}
+
+	return { action: tree.action,
+		 args: tree.args.map(eliminateDoubleNegation) };
+}
+
+function clone(obj) {
+	return JSON.parse(JSON.stringify(obj));
+}
+
+function distribOr(tree) {
+	
+	if (!tree || tree.action == "substitution")
+		return tree;
+
+	if (tree.action == "disjunction") {
+		if (tree.args[1].action == "conjunction") {
+			return buildConjunction(
+				buildDisjunction(distribOr(clone(tree.args[0])),
+						 distribOr(clone(tree.args[1].args[0]))),
+				buildDisjunction(distribOr(clone(tree.args[0])),
+						 distribOr(clone(tree.args[1].args[1])))
+			);
+			
+						 
+		}
+
+		if (tree.args[0].action == "conjunction") {
+			return buildConjunction(
+				buildDisjunction(distribOr(clone(tree.args[1])),
+						 distribOr(clone(tree.args[0].args[0]))),
+				buildDisjunction(distribOr(clone(tree.args[1])),
+						 distribOr(clone(tree.args[0].args[1])))
+			);
+			
+						 
+		}
+	}
+
+
+	return { action: tree.action,
+		 args: tree.args.map(distribOr) };
+
+
+
+
+}
+
+function hoistNullActions(tree) {
+	if (!tree || tree.action == "substitution")
+		return tree;
+
+	if (tree.action == null)
+		return hoistNullActions(tree.args[0]);
+
+	return { action: tree.action,
+		 args: tree.args.map(hoistNullActions) };
+}
+
+
+function convertToCNF(tree) {
+	var actions = [eliminateBijection,
+		   eliminateImplication,
+		   deMorgans,
+		   eliminateDoubleNegation,
+		   distribOr];
+
+	var toR = tree;
+	actions.forEach(function (a) {
+		toR = a(toR);
+	});
+
+	return toR;
+		
+}
+
+console.log(JSON.stringify(convertToCNF(buildTree("A <-> B & C"))));
