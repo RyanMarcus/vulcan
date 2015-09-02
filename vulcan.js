@@ -15,160 +15,11 @@
 // along with orbits.  If not, see <http://www.gnu.org/licenses/>.
 
 
-var parser = require("./parse.js");
-var lexer = require("./lex.js");
 var cnf = require("./cnf.js");
 var util = require("./util.js");
 
 
-Array.prototype.peek = function () {
-	return this[this.length - 1];
-};
 
-if (!Array.prototype.includes) {
-  Array.prototype.includes = function(searchElement /*, fromIndex*/ ) {
-    'use strict';
-    var O = Object(this);
-    var len = parseInt(O.length) || 0;
-    if (len === 0) {
-      return false;
-    }
-    var n = parseInt(arguments[1]) || 0;
-    var k;
-    if (n >= 0) {
-      k = n;
-    } else {
-      k = len + n;
-      if (k < 0) {k = 0;}
-    }
-    var currentElement;
-    while (k < len) {
-      currentElement = O[k];
-      if (searchElement === currentElement ||
-         (searchElement !== searchElement && currentElement !== currentElement)) {
-        return true;
-      }
-      k++;
-    }
-    return false;
-  };
-}
-
-if (!String.prototype.startsWith) {
-  String.prototype.startsWith = function(searchString, position) {
-    position = position || 0;
-    return this.indexOf(searchString, position) === position;
-  };
-}
-
-
-
-function treeToExpr(tree) {
-
-	if (tree.action == "substitution") {
-		return tree.args[0];
-	}
-
-	if (tree.action == "literal") {
-		return tree.args[0];
-	}
-
-	if (tree.action == "negation") {
-		if (tree.args[0].action == "substitution") {
-			return "!" + tree.args[0].args[0];
-		}
-		return "(!" + treeToExpr(tree.args[0]) + ")";
-	}
-
-
-
-	if (tree.action == "conjunction") {
-		return "(" + treeToExpr(tree.args[0]) + " & " +  treeToExpr(tree.args[1]) + ")";
-	}
-
-	if (tree.action == "disjunction") {
-		return "(" + treeToExpr(tree.args[0]) + " | " +  treeToExpr(tree.args[1]) + ")";
-	}
-
-	if (tree.action == "implication") {
-		return "(" + treeToExpr(tree.args[0]) + " -> " + treeToExpr(tree.args[1]) + ")";
-	}
-
-	if (tree.action == "equivalence") {
-		return "(" + treeToExpr(tree.args[0]) + " <-> " + treeToExpr(tree.args[1]) + ")";
-	}
-
-	return "";
-
-
-}
-
-function isCNF(tree) {
-	var conjChild = function (tree) {
-		var lc;
-		if (tree.args[0].action == "conjunction") {
-			lc = conjChild(tree.args[0]);
-		} else {
-			lc = otherChild(tree.args[0]);
-		}
-
-
-		if (tree.args[1].action == "conjunction") {
-			return conjChild(tree.args[1]) && lc;
-		} else {
-			return otherChild(tree.args[1]) && lc;
-		}
-
-
-	};
-
-	var otherChild = function (tree) {
-		if (tree.action == "substitution" || tree.action == "literal")
-			return true;
-
-		if (tree.action == "conjunction")
-			return false;
-
-		if (tree.action == "negation" || tree.action == "disjunction")
-			return otherChild(tree.args[0] && tree.args[1]);
-
-		return false;
-	};
-
-	return conjChild(tree);
-}
-
-function splitClauses(tree) {
-	var clauses = [];
-	var findTopLevelDisjunctions = function (tree) {
-		if (tree.action == "conjunction") {
-			findTopLevelDisjunctions(tree.args[0]);
-			findTopLevelDisjunctions(tree.args[1]);
-			return;
-		}
-
-		clauses.push(tree);
-	};
-
-	findTopLevelDisjunctions(tree);
-	return clauses;
-	
-}
-
-function proofToString(proof) {
-	proof = proof.map(function(i) {
-		if (i.label == "sep")
-			return "------------------------------\n";
-		
-		if (i.tree) {
-			return i.idx + "\t" + treeToExpr(i.tree) + "\t" + i.label + "\n";
-		}
-
-		return i.label + "\n";
-	});
-
-	return proof.join("");
-}
 
 function findLiterals(clause) {
 	var literals = [];
@@ -234,7 +85,7 @@ function resolve(clause1, clause2) {
 		return {action: "literal",
 			args: [false]};
 
-	return buildTree(newLiterals.join(" | "));
+	return util.buildTree(newLiterals.join(" | "));
 	
 }
 
@@ -246,7 +97,7 @@ function prove(sentences, q) {
 
 	// convert each sentence to CNF
 	sentences.forEach(function (i) {
-		var toAdd = convertToCNF(buildTree(i)).map(function (i) {
+		var toAdd = cnf.convertToCNF(util.buildTree(i)).map(function (i) {
 			i.idx = pc++;
 			return i;
 		});;
@@ -261,7 +112,7 @@ function prove(sentences, q) {
 		var t = i.peek();
 		return t;
 	}).map(function (i) {
-		var t = splitClauses(i.tree).map(function (c) {
+		var t = cnf.splitClauses(i.tree).map(function (c) {
 			c.idx = pc++;
 			c.from = i.idx;
 			return c;
@@ -280,7 +131,7 @@ function prove(sentences, q) {
 	});
 
 	// now add the negation of our query to the KB
-	var neg = buildNegation(buildTree(q));
+	var neg = util.negate(util.buildTree(q));
 	neg.idx = pc++;
 	kb.push(neg);
 	toR.push({label: "assume for a contradiction",
@@ -310,10 +161,10 @@ function prove(sentences, q) {
 		for (var i = 0; i < kb.length; i++) {
 			for (var j = 1; j < kb.length; j++) {
 				var resolvent = resolve(kb[i], kb[j]);
-				if (newClauses.map(treeToExpr).includes(treeToExpr(resolvent)))
+				if (newClauses.map(util.treeToExpr).includes(util.treeToExpr(resolvent)))
 					continue;
 				resolvent.idx = pc++;
-				//console.log(treeToExpr(kb[i]) + " // " + treeToExpr(kb[j]) + " -> " + treeToExpr(resolvent));
+				//console.log(util.treeToExpr(kb[i]) + " // " + util.treeToExpr(kb[j]) + " -> " + util.treeToExpr(resolvent));
 				toR.push({label: "resolve of " + kb[i].idx + " and " + kb[j].idx,
 					  tree: resolvent,
 					  idx: resolvent.idx,
@@ -334,8 +185,8 @@ function prove(sentences, q) {
 		}
 		
 
-		var kbS = kb.map(treeToExpr);
-		var haveAll = (newClauses.map(treeToExpr).every(function (i) {
+		var kbS = kb.map(util.treeToExpr);
+		var haveAll = (newClauses.map(util.treeToExpr).every(function (i) {
 			return kbS.includes(i);
 		}));
 
@@ -352,7 +203,7 @@ function prove(sentences, q) {
 
 
 //console.log(proofToString(convertToCNF(buildTree("A -> B"))));
-//console.log(splitClauses(buildTree("(A | B) & (C | D) & (!C | L)")).map(treeToExpr));
+//console.log(cnf.splitClauses(buildTree("(A | B) & (C | D) & (!C | L)")).map(util.treeToExpr));
 //console.log(resolve(buildTree("A"), buildTree("A")));
 
-console.log(proofToString(prove(["(A -> B) & (B -> C) | D", "A", "!D"], "C")));
+console.log(util.proofToString(prove(["(A -> B) & (B -> C) | D", "A", "!D"], "C")));

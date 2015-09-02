@@ -14,9 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with orbits.  If not, see <http://www.gnu.org/licenses/>.
 
-function buildTree(string) {
-	return hoistNullActions(parser.parse(lexer.lex(string)));
-}
+var util = require("./util.js");
+
 
 function buildConjunction(a, b) {
 	return { action: "conjunction",
@@ -171,7 +170,7 @@ function doComplementation(tree) {
 		var rc = tree.args[1];
 
 		if (lc.action == "negation") {
-			if (treeToExpr(lc.args[0]) == treeToExpr(rc)) {
+			if (util.treeToExpr(lc.args[0]) == util.treeToExpr(rc)) {
 				return {action: "literal",
 					args: [true]};
 			}
@@ -179,7 +178,7 @@ function doComplementation(tree) {
 
 
 		if (rc.action == "negation") {
-			if (treeToExpr(rc.args[0]) == treeToExpr(lc)) {
+			if (util.treeToExpr(rc.args[0]) == util.treeToExpr(lc)) {
 				return {action: "literal",
 					args: [true]};
 			}
@@ -191,7 +190,7 @@ function doComplementation(tree) {
 		var rc = tree.args[1];
 
 		if (lc.args[0].action == "negation") {
-			if (treeToExpr(lc.args[0].args[0]) == treeToExpr(rc)) {
+			if (util.treeToExpr(lc.args[0].args[0]) == util.treeToExpr(rc)) {
 				return {action: "literal",
 					args: [false]};
 			}
@@ -199,7 +198,7 @@ function doComplementation(tree) {
 
 
 		if (rc.args[0].action == "negation") {
-			if (treeToExpr(rc.args[0].args[0]) == treeToExpr(lc)) {
+			if (util.treeToExpr(rc.args[0].args[0]) == util.treeToExpr(lc)) {
 				return {action: "literal",
 					args: [false]};
 			}
@@ -265,18 +264,10 @@ function doIdentity(tree) {
 
 }
 
-function hoistNullActions(tree) {
-	if (!tree || tree.action == "substitution" || tree.action == "literal")
-		return tree;
-
-	if (tree.action == null)
-		return hoistNullActions(tree.args[0]);
-
-	return { action: tree.action,
-		 args: tree.args.map(hoistNullActions) };
-}
 
 
+
+module.exports.convertToCNF = convertToCNF;
 function convertToCNF(tree) {
 	var actions = [{task: "eliminate bijection", f: eliminateBijection},
 		       {task: "eliminate implication", f: eliminateImplication},
@@ -293,7 +284,7 @@ function convertToCNF(tree) {
 		while (true) {
 
 			var newTree = a.f(toR.peek().tree);
-			if (treeToExpr(newTree) == treeToExpr(toR.peek().tree))
+			if (util.treeToExpr(newTree) == util.treeToExpr(toR.peek().tree))
 				break;
 
 
@@ -307,4 +298,57 @@ function convertToCNF(tree) {
 
 	return toR;
 		
+}
+
+function isCNF(tree) {
+	var conjChild = function (tree) {
+		var lc;
+		if (tree.args[0].action == "conjunction") {
+			lc = conjChild(tree.args[0]);
+		} else {
+			lc = otherChild(tree.args[0]);
+		}
+
+
+		if (tree.args[1].action == "conjunction") {
+			return conjChild(tree.args[1]) && lc;
+		} else {
+			return otherChild(tree.args[1]) && lc;
+		}
+
+
+	};
+
+	var otherChild = function (tree) {
+		if (tree.action == "substitution" || tree.action == "literal")
+			return true;
+
+		if (tree.action == "conjunction")
+			return false;
+
+		if (tree.action == "negation" || tree.action == "disjunction")
+			return otherChild(tree.args[0] && tree.args[1]);
+
+		return false;
+	};
+
+	return conjChild(tree);
+}
+
+module.exports.splitClauses = splitClauses;
+function splitClauses(tree) {
+	var clauses = [];
+	var findTopLevelDisjunctions = function (tree) {
+		if (tree.action == "conjunction") {
+			findTopLevelDisjunctions(tree.args[0]);
+			findTopLevelDisjunctions(tree.args[1]);
+			return;
+		}
+
+		clauses.push(tree);
+	};
+
+	findTopLevelDisjunctions(tree);
+	return clauses;
+	
 }
