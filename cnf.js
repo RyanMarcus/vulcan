@@ -300,6 +300,7 @@ function convertToCNF(tree) {
 		
 }
 
+module.exports.isCNF = isCNF;
 function isCNF(tree) {
 	var conjChild = function (tree) {
 		var lc;
@@ -320,17 +321,26 @@ function isCNF(tree) {
 	};
 
 	var otherChild = function (tree) {
+		if (!tree)
+			return false;
 		if (tree.action == "substitution" || tree.action == "literal")
 			return true;
 
 		if (tree.action == "conjunction")
 			return false;
 
-		if (tree.action == "negation" || tree.action == "disjunction")
-			return otherChild(tree.args[0] && tree.args[1]);
+		if (tree.action == "negation")
+				return otherChild(tree.args[0]);
+
+		if (tree.action == "disjunction")
+				return otherChild(tree.args[0] && tree.args[1]);
+
 
 		return false;
 	};
+
+	if (tree.action == "substitution" || (tree.action == "negation" && tree.args[0].action == "substitution"))
+		return true;
 
 	return conjChild(tree);
 }

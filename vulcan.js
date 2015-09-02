@@ -89,6 +89,7 @@ function resolve(clause1, clause2) {
 	
 }
 
+module.exports.prove = prove;
 function prove(sentences, q) {
 	var cnfProofs = [];
 	var toR = [];
