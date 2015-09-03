@@ -31,5 +31,24 @@ describe("Vulcan", function() {
 			var proof = vulcan.prove(["A -> B", "B"], "A");
 			assert(proof.peek().label == "model exhausted, proof could not be reached");
 		});
+
+
+		it("should prove bijective identity", function() {
+			var proof = vulcan.prove(["A <-> B", "B"], "A");
+			assert(proof.peek().label != "model exhausted, proof could not be reached");
+		});
+
+		it("should not prove the converse of bijective identity", function() {
+			var proof = vulcan.prove(["A <-> B", "!B"], "A");
+			assert(proof.peek().label == "model exhausted, proof could not be reached");
+		});
+
+		it("should find simple proofs", function () {
+			var proof = vulcan.prove(["(A & B) | C", "!B"], "C");
+			assert(proof.peek().label != "model exhausted, proof could not be reached");
+			
+		});
+
+
 	});
 });

@@ -64,6 +64,12 @@ function resolve(clause1, clause2) {
 	};
 
 	var compLit = findCompLiterals(clause1literals, clause2literals);
+	if (compLit.length > 1) {
+		// it's a tautology
+		return {action: "literal",
+			args: [true] };
+	}
+
 	var newLiterals = clause1literals.concat(clause2literals);
 
 	newLiterals.sort();
@@ -180,6 +186,11 @@ function prove(sentences, q) {
 					});
 					
 
+				} 
+
+				if (resolvent.action == "literal" && resolvent.args[0] == true) {
+					// we found a tautology. not useful.
+					continue;
 				}
 				newClauses.push(resolvent);
 			}
