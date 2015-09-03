@@ -238,4 +238,4 @@ function isProofComplete(proof) {
 //console.log(cnf.splitClauses(buildTree("(A | B) & (C | D) & (!C | L)")).map(util.treeToExpr));
 //console.log(resolve(buildTree("A"), buildTree("A")));
 
-console.log(util.proofToString(prove(["A <-> B", "!B"], "!A")));
+//console.log(util.proofToString(prove(["A <-> B", "!B"], "!A")));

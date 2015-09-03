@@ -44,7 +44,6 @@ describe("Vulcan", function() {
 
 		it("should prove the inverse bijective identity", function() {
 			var proof = vulcan.prove(["A <-> B", "!B"], "!A");
-			console.log(proof);
 			assert(vulcan.isProofComplete(proof));
 
 
