@@ -4,4 +4,4 @@
 
 A library for propositional logic and resolution queries.
 
-Currently under active development, using the excellent [https://github.com/pnevyk/llang](lexer and parser from llang).
+Currently under active development, using the excellent [lexer and parse from llang](https://github.com/pnevyk/llang). For examples, see the tests or [this blog post](http://rmarcus.info/blog/2015/09/02/vulcan.html).
