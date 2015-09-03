@@ -1,18 +1,18 @@
 // Copyright 2015 Ryan Marcus
 // This file is part of vulcan.
 // 
-// orbits is free software: you can redistribute it and/or modify
+// vulcan is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// orbits is distributed in the hope that it will be useful,
+// vulcan is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 // 
 // You should have received a copy of the GNU Affero General Public License
-// along with orbits.  If not, see <http://www.gnu.org/licenses/>.
+// along with vulcan.  If not, see <http://www.gnu.org/licenses/>.
 
 
 var cnf = require("./cnf.js");
@@ -129,7 +129,7 @@ function prove(sentences, q) {
 		return accum.concat(nxt);
 	}, []);
 
-	toR.push({label: "sep"});
+//	toR.push({label: "sep"});
 
 	kb.forEach(function (i) {
 		toR.push({label: "knowledge base clause from " + i.from,
@@ -138,7 +138,8 @@ function prove(sentences, q) {
 	});
 
 	// now add the negation of our query to the KB
-	var neg = util.negate(util.buildTree(q));
+	var negCNF = cnf.convertToCNF(util.negate(util.buildTree(q)));
+	var neg = negCNF.peek().tree;
 	neg.idx = pc++;
 	kb.push(neg);
 	toR.push({label: "assume for a contradiction",
@@ -168,10 +169,11 @@ function prove(sentences, q) {
 		for (var i = 0; i < kb.length; i++) {
 			for (var j = 1; j < kb.length; j++) {
 				var resolvent = resolve(kb[i], kb[j]);
+				//console.log(util.treeToExpr(kb[i]) + " // " + util.treeToExpr(kb[j]) + " -> " + util.treeToExpr(resolvent));
 				if (newClauses.map(util.treeToExpr).includes(util.treeToExpr(resolvent)))
 					continue;
 				resolvent.idx = pc++;
-				//console.log(util.treeToExpr(kb[i]) + " // " + util.treeToExpr(kb[j]) + " -> " + util.treeToExpr(resolvent));
+
 				toR.push({label: "resolve of " + kb[i].idx + " and " + kb[j].idx,
 					  tree: resolvent,
 					  idx: resolvent.idx,
@@ -183,6 +185,10 @@ function prove(sentences, q) {
 					var req = findRequiredSteps(resolvent.idx);
 					return toR.filter(function (i) {
 						return req.includes(i.idx) || i.idx <= pcCutoff || i.label == "sep";
+					}).map(function (i) {
+						if (i.tree)
+							i.tree = util.treeToExpr(i.tree);
+						return i;
 					});
 					
 
@@ -204,7 +210,11 @@ function prove(sentences, q) {
 
 		if (haveAll) {
 			toR.push({label: "model exhausted, proof could not be reached"});
-			return toR;
+			return toR.map(function (i) {
+				if (i.tree)
+					i.tree = util.treeToExpr(i.tree);
+				return i;
+			});
 				  
 		}
 		    
@@ -214,8 +224,18 @@ function prove(sentences, q) {
 }
 
 
+module.exports.addParens = addParens;
+function addParens(str) {
+	return util.treeToExpr(util.buildTree(str));
+}
+
+module.exports.isProofComplete = isProofComplete;
+function isProofComplete(proof) {
+	return proof.peek().label != "model exhausted, proof could not be reached";
+}
+
 //console.log(proofToString(convertToCNF(buildTree("A -> B"))));
 //console.log(cnf.splitClauses(buildTree("(A | B) & (C | D) & (!C | L)")).map(util.treeToExpr));
 //console.log(resolve(buildTree("A"), buildTree("A")));
 
-console.log(util.proofToString(prove(["(A -> B) & (B -> C) | D", "A", "!D"], "C")));
+console.log(util.proofToString(prove(["A <-> B", "!B"], "!A")));

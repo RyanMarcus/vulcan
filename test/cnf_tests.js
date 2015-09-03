@@ -1,18 +1,18 @@
 // Copyright 2015 Ryan Marcus
 // This file is part of vulcan.
 // 
-// orbits is free software: you can redistribute it and/or modify
+// vulcan is free software: you can redistribute it and/or modify
 // it under the terms of the GNU Affero General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // (at your option) any later version.
 // 
-// orbits is distributed in the hope that it will be useful,
+// vulcan is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
 // 
 // You should have received a copy of the GNU Affero General Public License
-// along with orbits.  If not, see <http://www.gnu.org/licenses/>.
+// along with vulcan.  If not, see <http://www.gnu.org/licenses/>.
 
 var assert = require("assert");
 var cnf = require("../cnf.js");
