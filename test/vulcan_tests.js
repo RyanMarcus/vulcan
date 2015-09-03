@@ -62,6 +62,11 @@ describe("Vulcan", function() {
 			
 		});
 
+		it("should follow negation chains", function () {
+			var proof = vulcan.prove(["A -> B", "B -> C"], "A -> C");
+			assert(vulcan.isProofComplete(proof));
+		});
+
 
 	});
 });

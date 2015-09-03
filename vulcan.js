@@ -140,11 +140,18 @@ function prove(sentences, q) {
 	// now add the negation of our query to the KB
 	var negCNF = cnf.convertToCNF(util.negate(util.buildTree(q)));
 	var neg = negCNF.peek().tree;
-	neg.idx = pc++;
+	cnf.splitClauses(negCNF.peek().tree).forEach(function (i) {
+		i.idx = pc++;
+		kb.push(i);
+		toR.push({label: "assume for a contradiction",
+			  tree: kb.peek(),
+			  idx: kb.peek().idx});
+	});
+/*	neg.idx = pc++;
 	kb.push(neg);
 	toR.push({label: "assume for a contradiction",
 		  tree: kb.peek(),
-		  idx: kb.peek().idx});
+		  idx: kb.peek().idx});*/
 
 	var findRequiredSteps = function(idx) {
 		var requiredSteps = [idx];
