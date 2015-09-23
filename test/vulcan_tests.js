@@ -62,11 +62,53 @@ describe("Vulcan", function() {
 			
 		});
 
-		it("should follow negation chains", function () {
+		it("should be able to resolve implications", function () {
 			var proof = vulcan.prove(["A -> B", "B -> C"], "A -> C");
 			assert(vulcan.isProofComplete(proof));
 		});
 
+		it("should be able to resolve implications", function () {
+			var proof = vulcan.prove(["A -> B", 
+                                                  "B -> C", 
+                                                  "C -> D",
+                                                  "D -> E"], "A -> E");
+			assert(vulcan.isProofComplete(proof));
+		});
+
+
+		it("should be able to resolve implications", function () {
+			var proof = vulcan.prove(["A -> B", 
+                                                  "B -> C", 
+                                                  "C -> D",
+                                                  "D -> E"], "B -> D");
+			assert(vulcan.isProofComplete(proof));
+		});
+
+		it("should be able to resolve implications", function () {
+			var proof = vulcan.prove(["A -> B", 
+                                                  "!B | C", 
+                                                  "C -> D",
+                                                  "D -> E"], "B -> D");
+			assert(vulcan.isProofComplete(proof));
+		});
+
+		it("should not falsely resolve complex queries", function () {
+                        this.timeout(20000);
+			var proof = vulcan.prove(["A -> B", 
+                                                  "!B | C", 
+                                                  "C -> D",
+                                                  "D -> !E"], "!B | E");
+			assert(!vulcan.isProofComplete(proof));
+		});
+
+		it("should resolve complex queries with extra info", function () {
+                        this.timeout(20000);
+			var proof = vulcan.prove(["A -> B", 
+                                                  "!B | (C <-> B)", 
+                                                  "C -> D",
+                                                  "D -> !E"], "!B | E");
+			assert(vulcan.isProofComplete(proof));
+		});
 
 	});
 });
