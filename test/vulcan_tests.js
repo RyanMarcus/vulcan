@@ -82,6 +82,8 @@ describe("Vulcan", function() {
                                                   "C -> D",
                                                   "D -> E"], "B -> D");
 			assert(vulcan.isProofComplete(proof));
+
+
 		});
 
 		it("should be able to resolve implications", function () {
