@@ -16,8 +16,8 @@
 
 "use-strict";
 
-var cnf = require("./cnf.js");
-var util = require("./util.js");
+const cnf = require("./cnf.js");
+const util = require("./util.js");
 
 function findLiterals(clause) {
 	var literals = [];

@@ -16,9 +16,8 @@
 
 "use-strict";
 
-var parser = require("./parse.js");
-var lexer = require("./lex.js");
-
+const parser = require("./parse.js");
+const lexer = require("./lex.js");
 
 Array.prototype.peek = function () {
 	return this[this.length - 1];
