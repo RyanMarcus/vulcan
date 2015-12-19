@@ -14,12 +14,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with vulcan.  If not, see <http://www.gnu.org/licenses/>.
 
+"use-strict";
 
 var cnf = require("./cnf.js");
 var util = require("./util.js");
-
-
-
 
 function findLiterals(clause) {
 	var literals = [];
@@ -230,7 +228,6 @@ function prove(sentences, q) {
 	}
 }
 
-
 module.exports.addParens = addParens;
 function addParens(str) {
 	return util.treeToExpr(util.buildTree(str));
@@ -240,9 +237,3 @@ module.exports.isProofComplete = isProofComplete;
 function isProofComplete(proof) {
 	return proof.peek().label != "model exhausted, proof could not be reached";
 }
-
-//console.log(proofToString(convertToCNF(buildTree("A -> B"))));
-//console.log(cnf.splitClauses(buildTree("(A | B) & (C | D) & (!C | L)")).map(util.treeToExpr));
-//console.log(resolve(buildTree("A"), buildTree("A")));
-
-//console.log(util.proofToString(prove(["A <-> B", "!B"], "!A")));
