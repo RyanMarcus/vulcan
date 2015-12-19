@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with vulcan.  If not, see <http://www.gnu.org/licenses/>.
 
-var util = require("./util.js");
+"use strict";
 
+const util = require("./util.js");
 
 function buildConjunction(a, b) {
 	return { action: "conjunction",

@@ -14,10 +14,10 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with vulcan.  If not, see <http://www.gnu.org/licenses/>.
 
+"use strict";
 
-var parser = require("./parse.js");
-var lexer = require("./lex.js");
-
+const parser = require("./parse.js");
+const lexer = require("./lex.js");
 
 Array.prototype.peek = function () {
 	return this[this.length - 1];
