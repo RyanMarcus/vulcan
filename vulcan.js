@@ -14,14 +14,14 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with vulcan.  If not, see <http://www.gnu.org/licenses/>.
 
-"use-strict";
+"use strict";
 
 const cnf = require("./cnf.js");
 const util = require("./util.js");
 
 function findLiterals(clause) {
-	var literals = [];
-	var f = function (c) {
+	let literals = [];
+	let f = function (c) {
 		if (!c)
 			return;
 
@@ -47,32 +47,32 @@ function findLiterals(clause) {
 
 function resolve(clause1, clause2) {
 
-	var clause1literals = findLiterals(clause1);
-	var clause2literals = findLiterals(clause2);
+	let clause1literals = findLiterals(clause1);
+	let clause2literals = findLiterals(clause2);
 
-	var findCompLiterals = function(c1l, c2l) {
-		var toR = [];
+	let findCompLiterals = function(c1l, c2l) {
+		let toR = [];
 		c1l.forEach(function (i) {
-			var symbol = (i.startsWith("!") ? i.substring(1) : i);
-			var inverse = (i.startsWith("!") ? i.substring(1) : "!" + i);
+			let symbol = (i.startsWith("!") ? i.substring(1) : i);
+			let inverse = (i.startsWith("!") ? i.substring(1) : "!" + i);
 			if (c2l.includes(inverse))
 				toR.push(symbol);
 		});
 		return toR;
 	};
 
-	var compLit = findCompLiterals(clause1literals, clause2literals);
+	let compLit = findCompLiterals(clause1literals, clause2literals);
 	if (compLit.length > 1) {
 		// it's a tautology
 		return {action: "literal",
 			args: [true] };
 	}
 
-	var newLiterals = clause1literals.concat(clause2literals);
+	let newLiterals = clause1literals.concat(clause2literals);
 
 	newLiterals.sort();
 	newLiterals = newLiterals.filter(function (i) {
-		var symbol = (i.startsWith("!") ? i.substring(1) : i);
+		let symbol = (i.startsWith("!") ? i.substring(1) : i);
 		if (compLit.includes(symbol))
 			return false;
 		return true;
@@ -95,14 +95,14 @@ function resolve(clause1, clause2) {
 
 module.exports.prove = prove;
 function prove(sentences, q) {
-	var cnfProofs = [];
-	var toR = [];
+	let cnfProofs = [];
+	let toR = [];
 	
-	var pc = 0;
+	let pc = 0;
 
 	// convert each sentence to CNF
 	sentences.forEach(function (i) {
-		var toAdd = cnf.convertToCNF(util.buildTree(i)).map(function (i) {
+		let toAdd = cnf.convertToCNF(util.buildTree(i)).map(function (i) {
 			i.idx = pc++;
 			return i;
 		});;
@@ -110,14 +110,14 @@ function prove(sentences, q) {
 		cnfProofs.push(toR);
 	});
 
-	var pcCutoff = pc;
+	let pcCutoff = pc;
 
 	// next, build the knowledge base
-	var kb = cnfProofs.map(function (i) {
-		var t = i.peek();
+	let kb = cnfProofs.map(function (i) {
+		let t = i.peek();
 		return t;
 	}).map(function (i) {
-		var t = cnf.splitClauses(i.tree).map(function (c) {
+		let t = cnf.splitClauses(i.tree).map(function (c) {
 			c.idx = pc++;
 			c.from = i.idx;
 			return c;
@@ -136,8 +136,8 @@ function prove(sentences, q) {
 	});
 
 	// now add the negation of our query to the KB
-	var negCNF = cnf.convertToCNF(util.negate(util.buildTree(q)));
-	var neg = negCNF.peek().tree;
+	let negCNF = cnf.convertToCNF(util.negate(util.buildTree(q)));
+	let neg = negCNF.peek().tree;
 	cnf.splitClauses(negCNF.peek().tree).forEach(function (i) {
 		i.idx = pc++;
 		kb.push(i);
@@ -151,10 +151,10 @@ function prove(sentences, q) {
 		  tree: kb.peek(),
 		  idx: kb.peek().idx});*/
 
-	var findRequiredSteps = function(idx) {
-		var requiredSteps = [idx];
+	let findRequiredSteps = function(idx) {
+		let requiredSteps = [idx];
 		
-		var step = toR.filter(function (i) {
+		let step = toR.filter(function (i) {
 			return i.idx == idx;
 		})[0];
 
@@ -170,10 +170,10 @@ function prove(sentences, q) {
 	};
 
 	while (true) {
-		var newClauses = [];
-		for (var i = 0; i < kb.length; i++) {
-			for (var j = 1; j < kb.length; j++) {
-				var resolvent = resolve(kb[i], kb[j]);
+		let newClauses = [];
+		for (let i = 0; i < kb.length; i++) {
+			for (let j = 1; j < kb.length; j++) {
+				let resolvent = resolve(kb[i], kb[j]);
 				//console.log(util.treeToExpr(kb[i]) + " // " + util.treeToExpr(kb[j]) + " -> " + util.treeToExpr(resolvent));
 				if (newClauses.map(util.treeToExpr).includes(util.treeToExpr(resolvent)))
 					continue;
@@ -187,7 +187,7 @@ function prove(sentences, q) {
 
 				if (resolvent.action == "literal" && resolvent.args[0] == false) {
 					// we found a contradiction!
-					var req = findRequiredSteps(resolvent.idx);
+					let req = findRequiredSteps(resolvent.idx);
 					return toR.filter(function (i) {
 						return req.includes(i.idx) || i.idx <= pcCutoff || i.label == "sep";
 					}).map(function (i) {
@@ -208,8 +208,8 @@ function prove(sentences, q) {
 		}
 		
 
-		var kbS = kb.map(util.treeToExpr);
-		var haveAll = (newClauses.map(util.treeToExpr).every(function (i) {
+		let kbS = kb.map(util.treeToExpr);
+		let haveAll = (newClauses.map(util.treeToExpr).every(function (i) {
 			return kbS.includes(i);
 		}));
 

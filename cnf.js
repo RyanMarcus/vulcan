@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with vulcan.  If not, see <http://www.gnu.org/licenses/>.
 
-"use-strict";
+"use strict";
 
 const util = require("./util.js");
 
