@@ -2,7 +2,7 @@
   "name": "vulcan",
   "version": "0.1.0",
   "engines": {
-    "node": "4.0.0"
+    "node": "^4.0.0"
   },
   "description": "A resolution-based propositional logic tool",
   "main": "vulcan.js",
@@ -18,7 +18,11 @@
     "test": "node_modules/mocha/bin/mocha"
   },
   "author": "Ryan Marcus <ryan@rmarcus.info>",
-  "license": "GPLv3",
+  "contributors": [{
+    "name": "David Barsky",
+    "email": "me@davidbarsky.com"
+  }],
+  "license": "GPL-3.0",
   "dependencies": {
     "mocha": "^2.3.0"
   }
