@@ -2,10 +2,10 @@ module.exports.parse = parse;
 
 
 /*
-This file is part of llang.
+ This file is part of llang.
 
-llang is MIT licensed. Feel free to use it, contribute or spread the word. Created with love by Petr Nevyhoštěný (Twitter).
-*/
+ llang is MIT licensed. Feel free to use it, contribute or spread the word. Created with love by Petr Nevyhoštěný (Twitter).
+ */
 
 
 function parse(tokens) {
