@@ -63,11 +63,13 @@ describe("Vulcan", function() {
 	});
 
 	it("should be able to resolve implications", function () {
+	    this.timeout(20000);
 	    var proof = vulcan.prove(["A -> B", "B -> C"], "A -> C");
 	    assert(vulcan.isProofComplete(proof));
 	});
 
 	it("should be able to resolve implications", function () {
+	    this.timeout(20000);
 	    var proof = vulcan.prove(["A -> B", 
                                       "B -> C", 
                                       "C -> D",
@@ -77,6 +79,7 @@ describe("Vulcan", function() {
 
 
 	it("should be able to resolve implications", function () {
+	    this.timeout(20000);
 	    var proof = vulcan.prove(["A -> B", 
                                       "B -> C", 
                                       "C -> D",
@@ -87,6 +90,7 @@ describe("Vulcan", function() {
 	});
 
 	it("should be able to resolve implications", function () {
+	    this.timeout(20000);
 	    var proof = vulcan.prove(["A -> B", 
                                       "!B | C", 
                                       "C -> D",
@@ -98,8 +102,7 @@ describe("Vulcan", function() {
             this.timeout(20000);
 	    var proof = vulcan.prove(["A -> B", 
                                       "!B | C", 
-                                      "C -> D",
-                                      "D -> !E"], "!B | E");
+                                      "C -> !D"], "!B | D");
 	    assert(!vulcan.isProofComplete(proof));
 	});
 

@@ -113,6 +113,15 @@ describe("CNF Converter", function() {
 
 	});
 
+	it("should convert trivial expressions to CNF", function() {
+	    var t = util.buildTree("!!!A");
+	    var e = cnf.convertToCNF(t).peek().tree;
+
+	    assert(e.action == "negation");
+	    assert(cnf.isCNF(e));
+
+	});
+
 	it("should convert CNF expressions to CNF", function() {
 	    var t = util.buildTree("A & B & C");
 	    var e = cnf.convertToCNF(t).peek().tree;
