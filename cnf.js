@@ -280,7 +280,7 @@ function convertToCNF(tree) {
 		  ];
 
 
-    var toR = [{label: "inital expression", tree: tree}];
+    var toR = [{label: "initial expression", tree: tree}];
     actions.forEach(function (a) {
 	while (true) {
 

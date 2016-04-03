@@ -22,98 +22,98 @@ var vulcan = require("../vulcan.js");
 
 describe("Vulcan", function() {
     describe("prove()", function() {
-	it("should prove modus ponens", function() {
-	    var proof = vulcan.prove(["A -> B", "A"], "A");
-	    assert(vulcan.isProofComplete(proof));
+        it("should prove modus ponens", function() {
+            var proof = vulcan.prove(["A -> B", "A"], "A");
+            assert(vulcan.isProofComplete(proof));
 
-	});
+        });
 
-	it("should not prove the converse of modus ponens", function() {
-	    var proof = vulcan.prove(["A -> B", "B"], "A");
-	    assert(! vulcan.isProofComplete(proof));
+        it("should not prove the converse of modus ponens", function() {
+            var proof = vulcan.prove(["A -> B", "B"], "A");
+            assert(! vulcan.isProofComplete(proof));
 
-	});
-
-
-	it("should prove bijective identity", function() {
-	    var proof = vulcan.prove(["A <-> B", "B"], "A");
-	    assert(vulcan.isProofComplete(proof));
+        });
 
 
-	});
-
-	it("should prove the inverse bijective identity", function() {
-	    var proof = vulcan.prove(["A <-> B", "!B"], "!A");
-	    assert(vulcan.isProofComplete(proof));
+        it("should prove bijective identity", function() {
+            var proof = vulcan.prove(["A <-> B", "B"], "A");
+            assert(vulcan.isProofComplete(proof));
 
 
-	});
+        });
 
-	it("should not prove the converse of bijective identity", function() {
-	    var proof = vulcan.prove(["A <-> B", "!B"], "A");
-	    assert(! vulcan.isProofComplete(proof));
+        it("should prove the inverse bijective identity", function() {
+            var proof = vulcan.prove(["A <-> B", "!B"], "!A");
+            assert(vulcan.isProofComplete(proof));
 
-	});
 
-	it("should find simple proofs", function () {
-	    var proof = vulcan.prove(["(A & B) | C", "!B"], "C");
-	    assert(vulcan.isProofComplete(proof));
+        });
 
-	    
-	});
+        it("should not prove the converse of bijective identity", function() {
+            var proof = vulcan.prove(["A <-> B", "!B"], "A");
+            assert(! vulcan.isProofComplete(proof));
 
-	it("should be able to resolve implications", function () {
-	    this.timeout(20000);
-	    var proof = vulcan.prove(["A -> B", "B -> C"], "A -> C");
-	    assert(vulcan.isProofComplete(proof));
-	});
+        });
 
-	it("should be able to resolve implications", function () {
-	    this.timeout(20000);
-	    var proof = vulcan.prove(["A -> B", 
+        it("should find simple proofs", function () {
+            var proof = vulcan.prove(["(A & B) | C", "!B"], "C");
+            assert(vulcan.isProofComplete(proof));
+
+            
+        });
+
+        it("should be able to resolve implications", function () {
+            this.timeout(20000);
+            var proof = vulcan.prove(["A -> B", "B -> C"], "A -> C");
+            assert(vulcan.isProofComplete(proof));
+        });
+
+        it("should be able to resolve implications", function () {
+            this.timeout(20000);
+            var proof = vulcan.prove(["A -> B", 
                                       "B -> C", 
                                       "C -> D",
                                       "D -> E"], "A -> E");
-	    assert(vulcan.isProofComplete(proof));
-	});
+            assert(vulcan.isProofComplete(proof));
+        });
 
 
-	it("should be able to resolve implications", function () {
-	    this.timeout(20000);
-	    var proof = vulcan.prove(["A -> B", 
+        it("should be able to resolve implications", function () {
+            this.timeout(20000);
+            var proof = vulcan.prove(["A -> B", 
                                       "B -> C", 
                                       "C -> D",
                                       "D -> E"], "B -> D");
-	    assert(vulcan.isProofComplete(proof));
+            assert(vulcan.isProofComplete(proof));
 
 
-	});
+        });
 
-	it("should be able to resolve implications", function () {
-	    this.timeout(20000);
-	    var proof = vulcan.prove(["A -> B", 
+        it("should be able to resolve implications", function () {
+            this.timeout(20000);
+            var proof = vulcan.prove(["A -> B", 
                                       "!B | C", 
                                       "C -> D",
                                       "D -> E"], "B -> D");
-	    assert(vulcan.isProofComplete(proof));
-	});
+            assert(vulcan.isProofComplete(proof));
+        });
 
-	it("should not falsely resolve complex queries", function () {
+        it("should not falsely resolve complex queries", function () {
             this.timeout(20000);
-	    var proof = vulcan.prove(["A -> B", 
+            var proof = vulcan.prove(["A -> B", 
                                       "!B | C", 
                                       "C -> !D"], "!B | D");
-	    assert(!vulcan.isProofComplete(proof));
-	});
+            assert(!vulcan.isProofComplete(proof));
+        });
 
-	it("should resolve complex queries with extra info", function () {
+        it("should resolve complex queries with extra info", function () {
             this.timeout(20000);
-	    var proof = vulcan.prove(["A -> B", 
+            var proof = vulcan.prove(["A -> B", 
                                       "!B | (C <-> B)", 
                                       "C -> D",
                                       "D -> !E"], "!B | E");
-	    assert(vulcan.isProofComplete(proof));
-	});
+            assert(vulcan.isProofComplete(proof));
+        });
 
     });
 });
