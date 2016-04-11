@@ -1,6 +1,6 @@
 {
   "name": "vulcan",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "engines": {
     "node": "^4.0.0"
   },
@@ -23,7 +23,7 @@
     "email": "me@davidbarsky.com"
   }],
   "license": "GPL-3.0",
-  "dependencies": {
+  "devDependencies": {
     "mocha": "^2.3.0"
   }
 }
