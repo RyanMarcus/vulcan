@@ -53,6 +53,41 @@ describe("CNF Converter Internals", function() {
 	    var t = util.buildTree("A & (B | (A & C)) & !C");
 	    assert(!cnf.isCNF(t));
 	});
+
+        it("should identify expressions not in CNF", function () {
+	    var t = util.buildTree("((A & (B -> !D)) & C)");
+	    assert(!cnf.isCNF(t));
+	});
+
+        it("should identify expressions not in CNF", function () {
+	    var t = util.buildTree("((A & (B -> (!D & C))) <-> C)");
+	    assert(!cnf.isCNF(t));
+	});
+
+        it("should identify expressions not in CNF", function () {
+	    var t = util.buildTree("(!(!!A))");
+	    assert(!cnf.isCNF(t));
+	});
+
+
+        it("should identify expressions not in CNF", function () {
+	    var t = util.buildTree("A <-> B");
+	    assert(!cnf.isCNF(t));
+	});
+
+        it("should identify expressions not in CNF", function () {
+	    var t = util.buildTree("((A & B) | C)");
+	    assert(!cnf.isCNF(t));
+	});
+
+        it("should identify expressions not in CNF", function () {
+	    var t = util.buildTree("((!!A) & !C)");
+	    assert(!cnf.isCNF(t));
+	});
+
+        
+
+
     });
 
     describe("splitClauses()", function() {
