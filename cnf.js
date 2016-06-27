@@ -281,19 +281,23 @@ function convertToCNF(tree) {
 
 
     var toR = [{label: "initial expression", tree: tree}];
-    actions.forEach(function (a) {
-	while (true) {
+    for (let a of actions) {
 
+        // stop early if we are already in CNF
+        if (isCNF(toR.peek().tree)) {
+            break;
+
+        }
+        
+        // apply the action until it has no effect
+	while (true) {
 	    var newTree = a.f(toR.peek().tree);
 	    if (util.treeToExpr(newTree) == util.treeToExpr(toR.peek().tree))
 		break;
 
-
 	    toR.push({label: a.task, tree: newTree});
-
-	    
 	}
-    });
+    }
 
 
 
@@ -304,7 +308,17 @@ function convertToCNF(tree) {
 module.exports.isCNF = isCNF;
 function isCNF(tree) {
     var conjChild = function (tree) {
-	var lc;
+        if (tree.args.length < 2)
+            return false;
+
+
+        if (tree.action == "implication"
+            || tree.action == "equivalence"
+            || tree.action == "disjunction")
+            return false;
+        
+        
+        var lc;
 	if (tree.args[0].action == "conjunction") {
 	    lc = conjChild(tree.args[0]);
 	} else {
@@ -318,20 +332,23 @@ function isCNF(tree) {
 	    return otherChild(tree.args[1]) && lc;
 	}
 
+        return false;
+
 
     };
 
     var otherChild = function (tree) {
 	if (!tree)
 	    return false;
+        
 	if (tree.action == "substitution" || tree.action == "literal")
 	    return true;
 
 	if (tree.action == "conjunction")
 	    return false;
 
-	if (tree.action == "negation")
-	    return otherChild(tree.args[0]);
+	if (tree.action == "negation") 
+            return tree.args[0].action == "substitution";
 
 	if (tree.action == "disjunction")
 	    return otherChild(tree.args[0] && tree.args[1]);
