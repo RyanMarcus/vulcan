@@ -1,6 +1,7 @@
 # Vulcan
 
 [ ![Codeship Status for RyanMarcus/vulcan](https://codeship.com/projects/445f6a20-3409-0133-a68d-56c8db4126b8/status?branch=master)](https://codeship.com/projects/100424)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FRyanMarcus%2Fvulcan.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2FRyanMarcus%2Fvulcan?ref=badge_shield)
 
 A library for proving statements in propositional logic using resolution.
 
@@ -62,3 +63,6 @@ true
     idx: 109,
     req: [ 22, 27 ] } ]
 ```
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2FRyanMarcus%2Fvulcan.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2FRyanMarcus%2Fvulcan?ref=badge_large)
